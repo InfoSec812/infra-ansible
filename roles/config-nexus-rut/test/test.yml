@@ -27,19 +27,21 @@
     until: nexus_server_check_result is success
     retries: '{{ nexus_server_poll_retries }}'
     delay: '{{ nexus_server_poll_delay_in_seconds }}'
-  - include_role: 
-      name: config-nexus-rut
-    vars:
-      nexus_rut_header: 'X-Forwarded-User'
-  - name: Verify RUT is working without username/password
-    uri:
-      url: "{{ nexus_protocol }}://{{ nexus_url }}{{ nexus_api_base_path }}/script/{{ resource_name }}"
-      method: GET
-      status_code: 200
-      validate_certs: false
-      headers:
-        X-Forwarded-User: admin
-  - name: Stop Nexus test container
-    command: 'docker kill nexus_token_test'
-  - name: Delete Nexus test container
-    command: 'docker rm nexus_token_test'
+  - block:
+    - include_role: 
+        name: config-nexus-rut
+      vars:
+        nexus_rut_header: 'X-Forwarded-User'
+    - name: Verify RUT is working without username/password
+      uri:
+        url: "{{ nexus_protocol }}://{{ nexus_url }}{{ nexus_api_base_path }}/script/{{ resource_name }}"
+        method: GET
+        status_code: 200
+        validate_certs: false
+        headers:
+          X-Forwarded-User: admin
+    always:
+    - name: Stop Nexus test container
+      command: 'docker kill nexus_token_test'
+    - name: Delete Nexus test container
+      command: 'docker rm nexus_token_test'

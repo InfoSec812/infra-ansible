@@ -27,8 +27,9 @@
     until: nexus_server_check_result is success
     retries: '{{ nexus_server_poll_retries }}'
     delay: '{{ nexus_server_poll_delay_in_seconds }}'
-  - name: Alway try our tests
-    block:
+  - block:
+    - name: I Fail
+      command: 'false'
     - name: Update admin password
       include_role: 
         name: config-nexus-user
@@ -81,7 +82,6 @@
         user: "newuser"
         password: "SomeOtherPassword"
         force_basic_auth: yes
-  - name: Clean up test containers
     always:
     - name: Stop Nexus test container
       command: 'docker kill nexus_token_test'
