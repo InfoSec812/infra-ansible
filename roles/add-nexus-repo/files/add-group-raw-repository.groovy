@@ -1,10 +1,12 @@
-import org.sonatype.nexus.repository.maven.LayoutPolicy;
-import org.sonatype.nexus.repository.maven.VersionPolicy;
-import org.sonatype.nexus.repository.storage.WritePolicy;
-import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import groovy.json.JsonSlurper
 
-def member_list = '{{ group_list }}'.split(',').toList()
+def params = new JsonSlurper().parseText(args)
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createRawGroup( '{{ resource_name }}', member_list, BlobStoreManager.DEFAULT_BLOBSTORE_NAME)
-};
+def memberList = params?.repositories as List<String>
+
+def resourceName = params?.name:?'raw-group'
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createRawGroup(resourceName, memberList, BlobStoreManager.DEFAULT_BLOBSTORE_NAME)
+}

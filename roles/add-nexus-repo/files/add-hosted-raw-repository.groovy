@@ -1,12 +1,19 @@
-import org.sonatype.nexus.repository.storage.WritePolicy;
-import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.repository.storage.WritePolicy
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import groovy.json.JsonSlurper
 
-def writePolicy = WritePolicy.valueOf('{{ write_policy | default("allow")}}'.toUpperCase())
-def strictContentTypeValidation = '{{ strict_content_type_validation | default("false") }}'.matches(/(true,TRUE,t,y,Y,YES)/)
+def params = new JsonSlurper().parseText(args)
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createRawHosted('{{ resource_name }}',
+def writePolicyString = params?.writePolicy?:'allow'
+def writePolicy = WritePolicy.valueOf(writePolicyString.toUpperCase())
+
+def strictContentTypeValidation = params?.strictContentTypeValidation?:false as boolean
+
+def resourceName = params?.name:?'raw-hosted'
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createRawHosted(resourceName,
                                BlobStoreManager.DEFAULT_BLOBSTORE_NAME,
                                strictContentTypeValidation,
                                writePolicy)
-};
+}

@@ -1,19 +1,21 @@
-import org.sonatype.nexus.repository.maven.LayoutPolicy;
-import org.sonatype.nexus.repository.maven.VersionPolicy;
-import org.sonatype.nexus.repository.storage.WritePolicy;
+import groovy.json.JsonSlurper
 
-def member_list = '{{ group_list }}'.split(',').toList()
-def v1Enabled = '{{ docker_v1_protocol | default("false") }}'.matches(/(true,TRUE,t,T,yes,YES,y,Y)/)
+def params = new JsonSlurper().parseText(args)
 
-def httpPort = '{{ docker_http_port | default('null') }}'
-def httpsPort = '{{ docker_https_port | default('null') }}'
+def member_list = params.members as List<String>
+def v1Enabled = (params?.viEnabled?:false) as boolean
 
-if (httpPort == 'null' || httpsPort == 'null') {
-    if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-        repository.createDockerGroup("{{ resource_name }}",
-                                {{ docker_http_port | default('null') }} as Integer,
-                                {{ docker_https_port | default('null') }} as Integer,
+def httpPort = (params?.httpPort) as Integer
+def httpsPort = (params?.httpsPort) as Integer
+
+def resourceName = params?.name:?'docker-group'
+
+if (httpPort || httpsPort) {
+    if ( !repository.repositoryManager.exists( params.name as String ) ){
+        repository.createDockerGroup(params.name as String,
+                                httpPort,
+                                httpsPort,
                                 member_list,
                                 v1Enabled)
-    };
+    }
 }

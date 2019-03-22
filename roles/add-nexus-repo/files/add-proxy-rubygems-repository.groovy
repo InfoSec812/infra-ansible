@@ -1,10 +1,15 @@
-import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import groovy.json.JsonSlurper
 
-def strictContentTypeValidation = '{{ strict_content_type_validation | default("false") }}'.matches(/(true,TRUE,t,y,Y,YES)/)
+def params = new JsonSlurper().parseText(args)
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createRubygemsProxy('{{ resource_name }}',
-                                   '{{ proxy_url }}',
+def strictContentTypeValidation = params?.strictContentTypeValidation?:false as boolean
+
+def resourceName = params?.name:?'ruby-proxied'
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createRubygemsProxy(resourceName,
+                                   params?.proxyUrl as String,
                                    BlobStoreManager.DEFAULT_BLOBSTORE_NAME,
                                    strictContentTypeValidation)
-};
+}

@@ -1,8 +1,16 @@
-import org.sonatype.nexus.repository.maven.LayoutPolicy;
-import org.sonatype.nexus.repository.maven.VersionPolicy;
-import org.sonatype.nexus.repository.storage.WritePolicy;
-import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.repository.storage.WritePolicy
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import groovy.json.JsonSlurper
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createMavenHosted( '{{ resource_name }}', BlobStoreManager.DEFAULT_BLOBSTORE_NAME, true, VersionPolicy.SNAPSHOT, WritePolicy.ALLOW, LayoutPolicy.STRICT)
-};
+def params = new JsonSlurper().parseText(args)
+
+def writePolicyString = params?.writePolicy?:'allow'
+def writePolicy = WritePolicy.valueOf(writePolicyString.toUpperCase())
+
+def strictContentTypeValidation = params?.strictContentTypeValidation?:false as boolean
+
+def resourceName = params?.name:?'ruby-hosted'
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createRubygemsHosted(resourceName, BlobStoreManager.DEFAULT_BLOBSTORE_NAME, strictContentTypeValidation, writePolicy)
+}

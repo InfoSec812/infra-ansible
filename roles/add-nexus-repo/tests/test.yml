@@ -68,7 +68,7 @@
         resource_type: docker
         repo_type: proxy
         docker_http_port: 6080
-        docker_registry_url: 'https://registry.access.redhat.com:443'
+        proxy_url: 'https://registry.access.redhat.com:443'
     - include_role:  
         name: add-nexus-repo
       vars:
@@ -76,7 +76,7 @@
         resource_type: docker
         repo_type: group
         docker_http_port: 5080
-        group_list: 'docker_hosted,docker_proxied'
+        members: 'docker_hosted,docker_proxied'
     - include_role:  
         name: add-nexus-repo
       vars:
@@ -96,7 +96,7 @@
         resource_name: 'npm_group'
         resource_type: npm
         repo_type: group
-        group_list: 'npm_hosted,npm_proxied'
+        members: 'npm_hosted,npm_proxied'
     - include_role:  
         name: add-nexus-repo
       vars:
@@ -116,7 +116,7 @@
         resource_name: 'pypi_group'
         resource_type: pypi
         repo_type: group
-        group_list: 'pypi_hosted,pypi_proxied'
+        members: 'pypi_hosted,pypi_proxied'
     - include_role:  
         name: add-nexus-repo
       vars:
@@ -136,7 +136,7 @@
         resource_name: 'raw_group'
         resource_type: raw
         repo_type: group
-        group_list: 'raw_hosted,raw_proxied'
+        members: 'raw_hosted,raw_proxied'
     - include_role:  
         name: add-nexus-repo
       vars:
@@ -156,7 +156,7 @@
         resource_name: 'rubygems_group'
         resource_type: rubygems
         repo_type: group
-        group_list: 'rubygems_hosted,rubygems_proxied'
+        members: 'rubygems_hosted,rubygems_proxied'
     always:
     - name: Kill test Nexus container
       shell: "docker kill ansible_nexus_test"

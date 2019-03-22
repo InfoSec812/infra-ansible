@@ -1,9 +1,11 @@
-import org.sonatype.nexus.repository.maven.LayoutPolicy;
-import org.sonatype.nexus.repository.maven.VersionPolicy;
-import org.sonatype.nexus.repository.storage.WritePolicy;
+import groovy.json.JsonSlurper
 
-def memberList = '{{ group_list }}'.split(',')
+def params = new JsonSlurper().parseText(args)
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createMavenGroup( '{{ resource_name }}', member_list)
+def resourceName = params?.name:?'maven-group'
+
+def memberList = params?.repositories as List<String>
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createMavenGroup(resourceName, memberList)
 };

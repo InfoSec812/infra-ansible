@@ -1,16 +1,25 @@
-import org.sonatype.nexus.repository.maven.LayoutPolicy;
-import org.sonatype.nexus.repository.maven.VersionPolicy;
-import org.sonatype.nexus.blobstore.api.BlobStoreManager;
+import org.sonatype.nexus.repository.maven.LayoutPolicy
+import org.sonatype.nexus.repository.maven.VersionPolicy
+import org.sonatype.nexus.blobstore.api.BlobStoreManager
+import groovy.json.JsonSlurper
 
-def versionPolicy = VersionPolicy.valueOf('{{ version_policy | default("release") }}'.toUpperCase())
-def layoutPolicy = LayoutPolicy.valueOf('{{ layout_policy | default("strict") }}'.toUpperCase())
-def strictContentTypeValidation = '{{ strict_content_type_validation | default("false") }}'.matches(/(true,TRUE,t,y,Y,YES)/)
+def params = new JsonSlurper().parseText(args)
 
-if ( !repository.repositoryManager.exists( '{{ resource_name }}' ) ){
-    repository.createMavenProxy('{{ resource_name }}',
-                              '{{ proxy_url }}',
+def versionPolicyString = params?.versionPolicy?:'release'
+def versionPolicy = VersionPolicy.valueOf(versionPolicyString.toUpperCase())
+
+def layoutPolicyString = params?.layoutPolicy?:'strict'
+def layoutPolicy = LayoutPolicy.valueOf(layoutPolicyString.toUpperCase())
+
+def strictContentTypeValidation = params?.strictContentTypeValidation?:false as boolean
+
+def resourceName = params?.name:?'maven-proxied'
+
+if ( !repository.repositoryManager.exists(resourceName) ){
+    repository.createMavenProxy(resourceName,
+                              params?.proxyUrl as String,
                               BlobStoreManager.DEFAULT_BLOBSTORE_NAME,
                               strictContentTypeValidation,
                               versionPolicy,
                               layoutPolicy)
-};
+}
