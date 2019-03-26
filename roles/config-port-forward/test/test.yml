@@ -1,0 +1,7 @@
+---
+- name: 'Wrap action with port forward'
+  hosts: local
+  vars:
+    depoyment_name: nexus
+  tasks:
+  - name: Deploy Nexus
